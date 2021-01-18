@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  ui:
+    depends_on:
+      - db
+      - app
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    volumes:
+      - ./ui/public:/var/ui/public
+      - ./ui/src:/var/ui/src
+    ports:
+      - "${HOST_UI_PORT:-8098}:3000"
+    stdin_open: true
+
+  db:
+    image: "postgres:12-alpine"
+    volumes:
+      - ./pgdata:/pgdata:z
+    ports:
+      - "${HOST_DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASS}"
+      PGDATA: /pgdata
+    user: "${HOST_UID:-1000:1000}"
+
+  app:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: "${USER_NAME:-web}"
+        USER_ID: "${USER_ID:-1000}"
+        USER_GROUP_ID: "${USER_GROUP_ID:-1000}"
+    volumes:
+      - ./app:/var/app
+    ports:
+      - "${HOST_APP_PORT:-8099}:8000"
+    environment:
+      DB_NAME: "${DB_NAME}"
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_USER: "${DB_USER}"
+      DB_PASS: "${DB_PASS}"
+    user: "${HOST_UID:-1000:1000}"
+    stdin_open: true
+    tty: true
+    command: ["runserver", "0.0.0.0:8000"]
