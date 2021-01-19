@@ -129,3 +129,9 @@ dmypy.json
 .pyre/
 
 pgdata/
+
+ui/.eslintcache
+
+ui/yarn.lock
+
+notes.txt

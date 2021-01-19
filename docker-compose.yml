@@ -1,20 +1,6 @@
 version: '3.7'
 
 services:
-  ui:
-    depends_on:
-      - db
-      - app
-    build:
-      context: .
-      dockerfile: Dockerfile.ui
-    volumes:
-      - ./ui/public:/var/ui/public
-      - ./ui/src:/var/ui/src
-    ports:
-      - "${HOST_UI_PORT:-8098}:3000"
-    stdin_open: true
-
   db:
     image: "postgres:12-alpine"
     volumes:
@@ -27,8 +13,24 @@ services:
       PGDATA: /pgdata
     user: "${HOST_UID:-1000:1000}"
 
+  ui:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    volumes:
+      - ./ui/public:/var/ui/public
+      - ./ui/src:/var/ui/src
+    ports:
+      - "${HOST_UI_PORT:-8098}:3000"
+    environment:
+      REACT_APP_API_URL: "${REACT_APP_API_URL:-http://app:8000}"
+    stdin_open: true
+
   app:
     depends_on:
+      - ui
       - db
     build:
       context: .
@@ -47,6 +49,7 @@ services:
       DB_PORT: "${DB_PORT}"
       DB_USER: "${DB_USER}"
       DB_PASS: "${DB_PASS}"
+      GOOGLE_API_KEY: "${GOOGLE_API_KEY}"
     user: "${HOST_UID:-1000:1000}"
     stdin_open: true
     tty: true
