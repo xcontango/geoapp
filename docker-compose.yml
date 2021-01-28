@@ -4,7 +4,8 @@ services:
   db:
     image: "postgres:12-alpine"
     volumes:
-      - ./pgdata:/pgdata:z
+      - ./pgdata:/pgdata
+      - /etc/passwd:/etc/passwd:ro
     ports:
       - "${HOST_DB_PORT:-5432}:5432"
     environment:

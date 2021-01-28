@@ -57,6 +57,4 @@ Tests.
 
 Webpack prod bundle.
 
-Change the ui container to local uid.
-
 `await` on fetches.
